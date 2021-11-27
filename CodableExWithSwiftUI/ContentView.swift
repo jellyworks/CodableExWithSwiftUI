@@ -9,8 +9,13 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        VStack{
+            Button {
+                decode()
+            } label: {
+                Text("Decoding")
+            }
+        }
     }
     
     func decode(){
@@ -31,11 +36,29 @@ struct ContentView: View {
                     }]
             }
             """.data(using: .utf8)
-        
+        let decoder = JSONDecoder()
+        guard let data = jsonData,
+            let personData = try? decoder.decode(PersonData.self, from: data)
+        else { return }
+        let count = personData.count
+        print(count)
+        let persons = personData.persons
+        for person in persons{
+            print("num=\(person.num)")
+            if let name = person.name {
+                print("name=\(name)")
+            }
+        }
     }
-    
-    
-    
+}
+
+struct PersonData:Codable{
+    var count:Int
+    var persons:[Person]
+    enum CodingKeys:String, CodingKey{
+        case count
+        case persons = "datas"
+    }
 }
 
 struct Person:Codable{
