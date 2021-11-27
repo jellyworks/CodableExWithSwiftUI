@@ -8,14 +8,41 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State var personData:PersonData?
     var body: some View {
         VStack{
-            Button {
-                decode()
-            } label: {
-                Text("Decoding")
+            if let persons = personData?.persons {
+                List{
+                    ForEach(persons, id:\.num){ person in
+                        HStack{
+                            Text("\(person.num)")
+                            if let name = person.name{
+                                Text(name)
+                            }
+                        }
+                    }
+                }
             }
+            HStack{
+                Spacer()
+                Button {
+                    decode()
+                } label: {
+                    Text("Decode")
+                }
+                Spacer()
+                Button {
+                    encode()
+                } label: {
+                    Text("Encode")
+                }
+                Spacer()
+            }.font(.largeTitle)
         }
+    }
+    
+    func encode(){
+        
     }
     
     func decode(){
@@ -40,6 +67,7 @@ struct ContentView: View {
         guard let data = jsonData,
             let personData = try? decoder.decode(PersonData.self, from: data)
         else { return }
+        self.personData = personData
         let count = personData.count
         print(count)
         let persons = personData.persons
@@ -73,6 +101,14 @@ struct Person:Codable{
         let container = try decoder.container(keyedBy: CodingKeys.self)
         num = try container.decode(Int.self, forKey: .num)
         name = try container.decodeIfPresent(String.self, forKey: .name)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(num, forKey: .num)
+        if let name = name {
+            try container.encode(name, forKey: .name)
+        }
     }
 }
 
